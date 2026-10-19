@@ -114,7 +114,7 @@
                 this.audioEl = new Audio();
                 this.audioEl.src = this.fileSrc;
                 this.audioEl.loop = true;
-                this.audioEl.volume = 0.5;
+                this.audioEl.volume = 0.25;
             }
             this.audioEl.play().then(function () {
                 // El archivo existe y suena: no usamos chiptune.
@@ -557,7 +557,11 @@
             } catch (err) {
                 btn.disabled = false;
                 btnText.textContent = "Confirmar Asistencia Oficial";
-                errEl.textContent = "Ups, no se pudo enviar. Revisa tu conexión e inténtalo de nuevo.";
+                const msg = err && err.message ? err.message : "";
+                // Si el backend avisa de nombre duplicado, mostramos ese mensaje tal cual.
+                errEl.textContent = /ya confirm/i.test(msg)
+                    ? "Ese nombre ya confirmó asistencia. Usa un nombre distinto si eres otra persona."
+                    : "Ups, no se pudo enviar. Revisa tu conexión e inténtalo de nuevo.";
                 errEl.classList.remove("hidden");
             }
         });
