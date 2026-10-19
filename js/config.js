@@ -13,8 +13,9 @@
    ============================================================ */
 
 window.CONFIG = {
-    // 👇 Pega aquí la URL de tu Apps Script (termina en /exec)
-    SHEETS_API_URL: "https://script.google.com/macros/s/AKfycbw_RhByyyexII2vrLxOOXI8pC-c7zhiA0F__ZTIEQBLYd9ahFCycYytTUHQY58kHZNfkw/exec",
+    // 👇 URL de tu API en Railway (SIN barra al final).
+    //    Mientras esté vacía (""), el sitio funciona en modo demo (localStorage).
+    API_BASE: "https://pokeduckparty-api-production.up.railway.app",
 
     // Fecha y hora del evento (para la cuenta regresiva)
     // Formato: "Mes Día, Año HH:MM:SS"

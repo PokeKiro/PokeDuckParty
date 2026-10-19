@@ -6,8 +6,9 @@
 (function () {
     "use strict";
 
-    const API_URL = (window.CONFIG && window.CONFIG.SHEETS_API_URL) || "";
-    const DEMO_MODE = !API_URL;              // sin URL -> modo demo (localStorage)
+    // Base de la API en Railway (sin barra final). Sin ella -> modo demo.
+    const API_BASE = ((window.CONFIG && window.CONFIG.API_BASE) || "").replace(/\/+$/, "");
+    const DEMO_MODE = !API_BASE;
     const SHOW_POTION_PUBLIC = !window.CONFIG || window.CONFIG.SHOW_POTION_PUBLIC !== false;
 
     // En modo conectado (Sheets) limpiamos los datos de prueba del modo demo
@@ -357,7 +358,26 @@
         try { localStorage.setItem("myPartyGuests", JSON.stringify(list)); } catch (e) {}
     }
 
-    // Enviar RSVP
+    // Helper: fetch con timeout contra la API de Railway
+    async function apiFetch(path, options, ms) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(function () { ctrl.abort(); }, ms || 20000);
+        try {
+            const res = await fetch(API_BASE + path, Object.assign({}, options, { signal: ctrl.signal }));
+            const text = await res.text();
+            let data;
+            try { data = JSON.parse(text); }
+            catch (e) { throw new Error("Respuesta inválida del servidor"); }
+            if (!res.ok || (data && data.ok === false)) {
+                throw new Error((data && data.error) || ("HTTP " + res.status));
+            }
+            return data;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    // Enviar RSVP (fetch normal contra Railway, CORS ok)
     async function submitRSVP(payload) {
         if (DEMO_MODE) {
             const list = demoGuests();
@@ -365,18 +385,11 @@
             saveDemoGuests(list);
             return { ok: true };
         }
-        // Apps Script responde con un redirect 302 a googleusercontent.com
-        // que NO trae cabeceras CORS, así que el navegador no puede leer la
-        // respuesta. Usamos mode:"no-cors": la petición SÍ llega y escribe en
-        // la hoja; solo que no podemos leer el resultado (no lo necesitamos).
-        await fetch(API_URL, {
+        return apiFetch("/rsvp", {
             method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(Object.assign({ action: "rsvp" }, payload))
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
         });
-        // Con no-cors la respuesta es "opaca": asumimos éxito si no hubo error de red.
-        return { ok: true };
     }
 
     // Marcar poción canjeada
@@ -389,50 +402,18 @@
             saveDemoGuests(list);
             return { ok: true };
         }
-        await fetch(API_URL, {
+        return apiFetch("/claim", {
             method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action: "claim", name: name })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: name })
         });
-        return { ok: true };
     }
 
-    // Obtener lista pública (JSONP para esquivar CORS en Apps Script)
-    function fetchGuests() {
-        if (DEMO_MODE) return Promise.resolve(demoGuests());
-        return new Promise(function (resolve, reject) {
-            const cbName = "__guestsCb" + Date.now();
-            const script = document.createElement("script");
-            let done = false;
-
-            const cleanup = function () {
-                delete window[cbName];
-                if (script.parentNode) script.parentNode.removeChild(script);
-            };
-
-            window[cbName] = function (data) {
-                done = true;
-                cleanup();
-                resolve((data && data.guests) || []);
-            };
-
-            script.onerror = function () {
-                if (done) return;
-                cleanup();
-                reject(new Error("No se pudo cargar la lista"));
-            };
-
-            // Timeout de seguridad por si nunca responde (amplio para datos móviles)
-            setTimeout(function () {
-                if (done) return;
-                cleanup();
-                reject(new Error("Tiempo de espera agotado"));
-            }, 20000);
-
-            script.src = API_URL + "?action=list&callback=" + cbName + "&_=" + Date.now();
-            document.body.appendChild(script);
-        });
+    // Obtener lista pública
+    async function fetchGuests() {
+        if (DEMO_MODE) return demoGuests();
+        const data = await apiFetch("/list?_=" + Date.now(), { method: "GET" });
+        return (data && data.guests) || [];
     }
 
     /* ========================================================
@@ -464,9 +445,7 @@
             }
         }
         if (guests === null) {
-            const detalle = lastErr && lastErr.message ? lastErr.message : "desconocido";
-            stateEl.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation"></i> No se pudo cargar la lista. Toca "Actualizar lista".</span>' +
-                '<br><span class="text-[10px] text-slate-500">[debug: ' + escapeHtml(detalle) + ']</span>';
+            stateEl.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation"></i> No se pudo cargar la lista. Toca "Actualizar lista".</span>';
             return;
         }
 
