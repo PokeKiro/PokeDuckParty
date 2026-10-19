@@ -423,12 +423,12 @@
                 reject(new Error("No se pudo cargar la lista"));
             };
 
-            // Timeout de seguridad por si nunca responde
+            // Timeout de seguridad por si nunca responde (amplio para datos móviles)
             setTimeout(function () {
                 if (done) return;
                 cleanup();
                 reject(new Error("Tiempo de espera agotado"));
-            }, 10000);
+            }, 20000);
 
             script.src = API_URL + "?action=list&callback=" + cbName + "&_=" + Date.now();
             document.body.appendChild(script);
@@ -448,11 +448,23 @@
         stateEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando lista de invitados...';
         container.classList.add("hidden");
 
-        let guests = [];
-        try {
-            guests = await fetchGuests();
-        } catch (e) {
-            stateEl.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation"></i> No se pudo cargar la lista. Intenta "Actualizar".</span>';
+        // Hasta 3 intentos: en datos móviles el primer intento puede fallar.
+        let guests = null;
+        let lastErr = null;
+        for (let intento = 1; intento <= 3; intento++) {
+            try {
+                guests = await fetchGuests();
+                break;
+            } catch (e) {
+                lastErr = e;
+                if (intento < 3) {
+                    stateEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Reintentando... (' + intento + '/3)';
+                    await sleep(1500);
+                }
+            }
+        }
+        if (guests === null) {
+            stateEl.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation"></i> No se pudo cargar la lista. Toca "Actualizar lista".</span>';
             return;
         }
 
