@@ -1,0 +1,479 @@
+/* ============================================================
+   Invitación Marichuy & Pedrulce — Estilos personalizados
+   Tema: Disney (Pato Donald) + Pokémon
+   ============================================================ */
+
+body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    color: #f8fafc;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   FONDO MARCA DE AGUA (Donald izquierda · Pokébolas derecha)
+   ============================================================ */
+#mainContent { position: relative; }
+#mainContent > header,
+#mainContent > main,
+#mainContent > footer { position: relative; z-index: 2; }
+
+.bg-watermark {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Donald tenue, pegado al borde izquierdo */
+.wm-donald {
+    position: absolute;
+    left: -2%;
+    bottom: 0;
+    width: 40vw;
+    max-width: 480px;
+    height: 85vh;
+    background: url("../assets/img/donald.png") no-repeat left bottom;
+    background-size: contain;
+    opacity: 0.07;
+    filter: grayscale(10%);
+}
+
+/* Pokébolas tenues, lado derecho */
+.wm-pokeballs {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40vw;
+    max-width: 460px;
+    height: 100%;
+    opacity: 0.08;
+}
+.pokeball {
+    position: absolute;
+    border-radius: 50%;
+    background:
+        linear-gradient(#e03b3b 0 48%, #1f2937 48% 52%, #f8fafc 52% 100%);
+    border: 3px solid #0f172a;
+    box-shadow: inset 0 0 0 2px rgba(15,23,42,0.4);
+}
+/* Botón central de cada pokébola */
+.pokeball::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22%;
+    height: 22%;
+    transform: translate(-50%, -50%);
+    background: #f8fafc;
+    border: 3px solid #0f172a;
+    border-radius: 50%;
+}
+.pb-1 { width: 140px; height: 140px; top: 8%;  right: 8%;  }
+.pb-2 { width: 90px;  height: 90px;  top: 32%; right: 32%; }
+.pb-3 { width: 180px; height: 180px; top: 55%; right: 4%;  }
+.pb-4 { width: 70px;  height: 70px;  top: 78%; right: 28%; }
+
+@media (max-width: 768px) {
+    .wm-donald { width: 55vw; opacity: 0.05; }
+    .wm-pokeballs { opacity: 0.06; }
+    .pb-2, .pb-4 { display: none; }
+}
+
+/* ---------- Glassmorphism ---------- */
+.glass-card {
+    background: rgba(30, 41, 59, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(212, 175, 55, 0.1);
+}
+
+/* ---------- Texto dorado ---------- */
+.text-gold-gradient {
+    background: linear-gradient(135deg, #FFF5C0 0%, #D4AF37 50%, #AA7C11 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ---------- Animaciones base ---------- */
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+
+@keyframes potionPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+    50% { box-shadow: 0 0 30px rgba(0, 255, 102, 0.8); }
+}
+.glow-potion { animation: potionPulse 2s infinite; }
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+
+/* ============================================================
+   REVEAL AL HACER SCROLL
+   ============================================================ */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ============================================================
+   CONTENIDO PRINCIPAL (oculto hasta terminar intro)
+   ============================================================ */
+.main-hidden { display: none; }
+.main-visible {
+    display: block;
+    animation: fadeInMain 1s ease forwards;
+}
+@keyframes fadeInMain {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ============================================================
+   INTRO CINEMÁTICA
+   ============================================================ */
+.intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #0b1020 70%, #05070f 100%);
+    overflow: hidden;
+}
+.intro-overlay.intro-closing {
+    animation: introFadeOut 1s ease forwards;
+}
+@keyframes introFadeOut {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* Cielo estrellado generado con gradientes radiales */
+.intro-sky {
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+        radial-gradient(1px 1px at 60% 70%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 80% 20%, #ffe, transparent),
+        radial-gradient(1px 1px at 35% 80%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 90% 60%, #fff, transparent),
+        radial-gradient(1px 1px at 10% 60%, #fff, transparent),
+        radial-gradient(2px 2px at 50% 15%, #fffbe0, transparent);
+    opacity: 0.5;
+    animation: twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+    from { opacity: 0.25; }
+    to { opacity: 0.6; }
+}
+
+.skip-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    padding: 0.4rem 0.9rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+}
+.skip-btn:hover { color: #D4AF37; border-color: #D4AF37; }
+
+.intro-scene {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1rem;
+    animation: sceneIn 0.6s ease;
+}
+@keyframes sceneIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.scene-caption {
+    margin-top: 2rem;
+    font-family: 'Outfit', sans-serif;
+    color: #cbd5e1;
+    font-style: italic;
+    text-align: center;
+    font-size: 0.95rem;
+    max-width: 90%;
+    animation: captionPulse 2s ease-in-out infinite;
+}
+@keyframes captionPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* ---------- Dragonite volando ---------- */
+.dragonite-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dragonite {
+    position: relative;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+}
+.dragonite-img {
+    width: 170px;
+    height: auto;
+    display: block;
+    transform: scaleX(-1);
+    filter: drop-shadow(0 8px 14px rgba(0,0,0,0.45));
+}
+.mail-bag {
+    position: absolute;
+    bottom: 1.2rem;
+    right: 0.5rem;
+    font-size: 1.8rem;
+    color: #D4AF37;
+    background: #fef3c7;
+    border-radius: 0.4rem;
+    padding: 0.2rem 0.3rem;
+    border: 2px solid #D4AF37;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    animation: bagSwing 1.5s ease-in-out infinite;
+}
+@keyframes bagSwing {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+}
+/* Dragonite entra UNA vez volando y luego flota suave (sin reseteo brusco) */
+.animate-fly {
+    animation:
+        fly-in 2.2s ease-out 1 both,
+        hover-float 3s ease-in-out 2.2s infinite;
+}
+@keyframes fly-in {
+    0%   { transform: translate(-140%, 40px) scale(0.5); opacity: 0; }
+    60%  { opacity: 1; }
+    100% { transform: translate(0, 0) scale(1); opacity: 1; }
+}
+@keyframes hover-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(0, -14px) scale(1); }
+}
+.speed-lines {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 40%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
+    box-shadow: 0 -20px 0 rgba(255,255,255,0.2), 0 20px 0 rgba(255,255,255,0.2);
+    /* Corren mientras Dragonite entra, luego se desvanecen */
+    animation:
+        speed 0.6s linear infinite,
+        speed-fade 0.6s ease-out 2.2s forwards;
+}
+@keyframes speed {
+    from { transform: translateX(-100%); opacity: 0; }
+    50% { opacity: 1; }
+    to { transform: translateX(300%); opacity: 0; }
+}
+@keyframes speed-fade {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* ---------- Carta / sobre ---------- */
+.letter-container {
+    position: relative;
+    width: 240px;
+    height: 160px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    animation: letterDrop 0.8s ease;
+}
+.letter-container:hover { transform: scale(1.05) rotate(-1deg); }
+@keyframes letterDrop {
+    from { transform: translateY(-200px) rotate(20deg); opacity: 0; }
+    to { transform: translateY(0) rotate(0); opacity: 1; }
+}
+.letter-paper {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #fffdf5, #f3e5ab);
+    border-radius: 0.5rem;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    border: 2px solid #D4AF37;
+}
+.letter-seal {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    width: 44px;
+    height: 44px;
+    background: radial-gradient(circle, #FFCC03, #D4AF37);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    animation: sealGlow 1.6s ease-in-out infinite;
+}
+@keyframes sealGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(255,204,3,0.5); }
+    50% { box-shadow: 0 0 25px rgba(255,204,3,0.9); }
+}
+.letter-container.opening { animation: letterOpen 0.8s ease forwards; }
+@keyframes letterOpen {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.15) rotate(3deg); }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* ---------- Pato Donald anfitrión + diálogo ---------- */
+.host-stage {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+.host-avatar {
+    position: relative;
+    display: inline-block;
+}
+.host-img {
+    height: 180px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 12px 22px rgba(0,0,0,0.55));
+}
+.animate-bob { animation: bob 2s ease-in-out infinite; }
+@keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+.dialogue-box {
+    position: relative;
+    width: 92%;
+    max-width: 560px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 3px solid #3B4CCA;
+    border-radius: 1rem;
+    padding: 1.5rem 1.5rem 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.05);
+    min-height: 130px;
+}
+.dialogue-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.7rem;
+    color: #FFCC03;
+    margin-bottom: 0.9rem;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+}
+.dialogue-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #f1f5f9;
+    min-height: 3rem;
+}
+.dialogue-text .cursor {
+    display: inline-block;
+    width: 8px;
+    animation: blink 0.7s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.dialogue-next {
+    position: absolute;
+    bottom: 0.6rem;
+    right: 1rem;
+    font-size: 1rem;
+    color: #FFCC03;
+    animation: bounceArrow 1s infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.dialogue-next.show { opacity: 1; }
+@keyframes bounceArrow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+}
+
+/* ---------- Botón de música ---------- */
+.music-btn {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: #D4AF37;
+    padding: 0.6rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    transition: all 0.2s ease;
+}
+.music-btn:hover { border-color: #D4AF37; transform: translateY(-2px); }
+.music-btn.playing { color: #00FF66; border-color: rgba(0,255,102,0.5); }
+.music-state {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.55rem;
+}
+
+/* ---------- Badge de canje en lista ---------- */
+.potion-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.65rem;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 0.1rem 0.5rem;
+    border-radius: 9999px;
+}
+
+/* ---------- Utilidad ---------- */
+.hidden { display: none !important; }
+
+/* Respeto a usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+    .animate-fly, .animate-float, .animate-bob, .glow-potion,
+    .speed-lines, .intro-sky, .scene-caption, .mail-bag, .letter-seal {
+        animation: none !important;
+    }
+}

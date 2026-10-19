@@ -1,0 +1,16 @@
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+
+# Logs / temporales
+*.log
+npm-debug.log*
+
+# Si algún día pruebas la URL real y NO quieres subirla,
+# puedes copiar config.js a config.local.js y descomentar:
+# js/config.local.js
