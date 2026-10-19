@@ -304,11 +304,16 @@
     /* ========================================================
        COUNTDOWN
        ======================================================== */
+    const EVENT_TS = new Date(window.CONFIG.EVENT_DATE).getTime();
+
+    // ¿Ya llegó (o pasó) el día/hora del evento?
+    function eventStarted() {
+        return Date.now() >= EVENT_TS;
+    }
+
     function initCountdown() {
-        const target = new Date(window.CONFIG.EVENT_DATE).getTime();
         function update() {
-            const now = Date.now();
-            const diff = target - now;
+            const diff = EVENT_TS - Date.now();
             if (diff > 0) {
                 const d = Math.floor(diff / 86400000);
                 const h = Math.floor((diff % 86400000) / 3600000);
@@ -319,12 +324,36 @@
                 $("minutes").textContent = String(m).padStart(2, "0");
                 $("seconds").textContent = String(s).padStart(2, "0");
             } else {
-                $("countdown").innerHTML =
-                    '<p class="text-gold font-bold font-pixel text-base col-span-4 py-4">¡EL EVENTO HA COMENZADO! 🎉</p>';
+                // Llegó el evento: se queda en ceros.
+                $("days").textContent = "00";
+                $("hours").textContent = "00";
+                $("minutes").textContent = "00";
+                $("seconds").textContent = "00";
+                // Al llegar la fecha, desbloquea el botón de la poción.
+                updatePotionAvailability();
             }
         }
         update();
         setInterval(update, 1000);
+    }
+
+    // Bloquea/desbloquea el botón de reclamar poción según la fecha.
+    function updatePotionAvailability() {
+        const btn = $("claimBtn");
+        const btnText = $("btnText");
+        if (!btn) return;
+        // Si ya fue canjeada, no tocar (se queda como "canjeada").
+        if (btn.dataset.claimed === "1") return;
+
+        if (eventStarted()) {
+            btn.disabled = false;
+            btn.title = "";
+            btnText.textContent = "¡Reclamar Poción HP!";
+        } else {
+            btn.disabled = true;
+            btn.title = "Disponible el día del evento";
+            btnText.textContent = "Disponible el día del evento";
+        }
     }
 
     /* ========================================================
@@ -522,6 +551,7 @@
                     "Gracias " + name + ", registramos a tu equipo (" + attendees +
                     (attendees === "1" ? " persona)." : " personas).");
                 $("confirmationMsg").classList.remove("hidden");
+                updatePotionAvailability(); // bloquea/activa según la fecha
 
                 refreshGuestList();
             } catch (err) {
@@ -540,6 +570,7 @@
         const btn = $("claimBtn");
         const btnText = $("btnText");
         if (btn.disabled) return;
+        if (!eventStarted()) return; // doble seguro: no se canjea antes del evento
 
         confetti({
             particleCount: 70,
@@ -554,12 +585,14 @@
 
         try {
             await claimPotion(currentGuestName);
+            btn.dataset.claimed = "1";
             btnText.textContent = "¡Poción Canjeada con Éxito! 🍹";
             btn.classList.remove("bg-emerald-500", "hover:bg-emerald-400");
             btn.classList.add("bg-gold", "text-slate-950");
             refreshGuestList();
         } catch (e) {
             // Aunque falle la red, visualmente ya se canjeó; reintenta al refrescar.
+            btn.dataset.claimed = "1";
             btnText.textContent = "¡Poción Canjeada! 🍹";
             btn.classList.add("bg-gold", "text-slate-950");
         }
