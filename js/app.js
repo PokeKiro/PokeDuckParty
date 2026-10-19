@@ -464,7 +464,9 @@
             }
         }
         if (guests === null) {
-            stateEl.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation"></i> No se pudo cargar la lista. Toca "Actualizar lista".</span>';
+            const detalle = lastErr && lastErr.message ? lastErr.message : "desconocido";
+            stateEl.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation"></i> No se pudo cargar la lista. Toca "Actualizar lista".</span>' +
+                '<br><span class="text-[10px] text-slate-500">[debug: ' + escapeHtml(detalle) + ']</span>';
             return;
         }
 
