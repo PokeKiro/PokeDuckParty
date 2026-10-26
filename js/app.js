@@ -515,11 +515,30 @@
        ======================================================== */
     function initForm() {
         const form = $("rsvpForm");
+
+        // Botones Sí / No: seleccionan el estado y muestran/ocultan los campos.
+        const btnYes = $("btnYes");
+        const btnNo = $("btnNo");
+        const attendingInput = $("attending");
+        const goingFields = $("goingFields");
+
+        function setAttending(val) {
+            attendingInput.value = val; // "si" | "no"
+            const va = val === "si";
+            btnYes.classList.toggle("selected", va);
+            btnNo.classList.toggle("selected", !va);
+            goingFields.classList.toggle("hidden", !va);
+            playBlip();
+        }
+        btnYes.addEventListener("click", function () { setAttending("si"); });
+        btnNo.addEventListener("click", function () { setAttending("no"); });
+
         form.addEventListener("submit", async function (e) {
             e.preventDefault();
             const name = $("guestName").value.trim();
-            const attendees = $("attendees").value;
-            const fav = $("favoriteChar").value.trim();
+            const attending = attendingInput.value === "si";
+            const attendees = attending ? $("attendees").value : "0";
+            const fav = attending ? $("favoriteChar").value.trim() : "";
             const message = $("message").value.trim();
             const errEl = $("rsvpError");
             errEl.classList.add("hidden");
@@ -532,26 +551,38 @@
             btnText.textContent = "Enviando...";
 
             try {
-                const result = await submitRSVP({ name: name, attendees: attendees, fav: fav, message: message });
+                const result = await submitRSVP({
+                    name: name, attending: attending ? "si" : "no",
+                    attendees: attendees, fav: fav, message: message
+                });
                 if (result && result.ok === false) throw new Error(result.error || "Error desconocido");
 
                 currentGuestName = name;
                 localStorage.setItem("rsvpName", name);
 
-                confetti({
-                    particleCount: 120,
-                    spread: 100,
-                    origin: { y: 0.6 },
-                    colors: ["#D4AF37", "#FFCC03", "#3B4CCA", "#0055A5", "#10B981"]
-                });
-                playVictorySound();
-
                 form.classList.add("hidden");
-                $("msgDetails").textContent =
-                    "Gracias " + name + ", registramos a tu equipo (" + attendees +
-                    (attendees === "1" ? " persona)." : " personas).");
+                const potionBlock = document.getElementById("potionBlock");
+
+                if (attending) {
+                    confetti({
+                        particleCount: 120, spread: 100, origin: { y: 0.6 },
+                        colors: ["#D4AF37", "#FFCC03", "#3B4CCA", "#0055A5", "#10B981"]
+                    });
+                    playVictorySound();
+                    $("confirmTitle").textContent = "¡Asistencia Confirmada!";
+                    $("msgDetails").textContent =
+                        "Gracias " + name + ", registramos a tu equipo (" + attendees +
+                        (attendees === "1" ? " persona)." : " personas).");
+                    if (potionBlock) potionBlock.classList.remove("hidden");
+                    updatePotionAvailability(); // bloquea/activa según la fecha
+                } else {
+                    // No asiste: sin confetti ni poción.
+                    $("confirmTitle").textContent = "¡Gracias por avisar!";
+                    $("msgDetails").textContent =
+                        "Lástima que no podrás, " + name + ". ¡Te mandamos un abrazo y nos vemos en la próxima aventura!";
+                    if (potionBlock) potionBlock.classList.add("hidden");
+                }
                 $("confirmationMsg").classList.remove("hidden");
-                updatePotionAvailability(); // bloquea/activa según la fecha
 
                 refreshGuestList();
             } catch (err) {
@@ -559,8 +590,8 @@
                 btnText.textContent = "Confirmar Asistencia Oficial";
                 const msg = err && err.message ? err.message : "";
                 // Si el backend avisa de nombre duplicado, mostramos ese mensaje tal cual.
-                errEl.textContent = /ya confirm/i.test(msg)
-                    ? "Ese nombre ya confirmó asistencia. Usa un nombre distinto si eres otra persona."
+                errEl.textContent = /ya respond|ya confirm/i.test(msg)
+                    ? "Ese nombre ya respondió. Usa un nombre distinto si eres otra persona."
                     : "Ups, no se pudo enviar. Revisa tu conexión e inténtalo de nuevo.";
                 errEl.classList.remove("hidden");
             }

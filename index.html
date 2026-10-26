@@ -224,7 +224,24 @@
                                class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-gold transition">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- ¿Asistes? -->
+                    <div>
+                        <label class="block text-xs uppercase font-semibold text-slate-300 mb-2">¿Aceptas la misión?</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" id="btnYes" data-val="si"
+                                class="attend-opt selected bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 font-semibold transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-check"></i> ¡Sí voy!
+                            </button>
+                            <button type="button" id="btnNo" data-val="no"
+                                class="attend-opt bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 font-semibold transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-xmark"></i> No podré
+                            </button>
+                        </div>
+                        <input type="hidden" id="attending" value="si">
+                    </div>
+
+                    <!-- Campos solo para quienes asisten -->
+                    <div id="goingFields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs uppercase font-semibold text-slate-300 mb-1" for="attendees">Número de Acompañantes</label>
                             <select id="attendees" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-gold transition">
@@ -257,11 +274,11 @@
                 <!-- Confirmación + canje de shot -->
                 <div id="confirmationMsg" class="hidden mt-6 bg-slate-900/90 border border-gold p-6 rounded-xl text-center space-y-3">
                     <div class="text-4xl">🎉⚡✨</div>
-                    <h4 class="font-wedding text-2xl text-gold-gradient font-bold">¡Asistencia Confirmada!</h4>
+                    <h4 id="confirmTitle" class="font-wedding text-2xl text-gold-gradient font-bold">¡Asistencia Confirmada!</h4>
                     <p class="text-slate-200 text-sm" id="msgDetails"></p>
 
-                    <!-- Canje del shot (ligado al RSVP) -->
-                    <div class="bg-gradient-to-r from-emerald-950/80 to-slate-900/90 border border-emerald-500/30 p-5 rounded-2xl mt-4 glow-potion">
+                    <!-- Canje del shot (ligado al RSVP, solo para quienes asisten) -->
+                    <div id="potionBlock" class="bg-gradient-to-r from-emerald-950/80 to-slate-900/90 border border-emerald-500/30 p-5 rounded-2xl mt-4 glow-potion">
                         <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Poción Especial de Bienvenida</span>
                         <h4 class="font-wedding text-xl text-white font-bold my-1">Shot "Liquid Marihuana" 🍹💥</h4>
                         <p class="text-slate-300 text-xs mb-4">Reclama tu Pase de Batalla de cortesía para subir tus estadísticas.</p>
@@ -308,7 +325,7 @@
     </div>
 
     <!-- Config primero, luego la app (el ?v= fuerza recarga sin caché) -->
-    <script src="js/config.js?v=10"></script>
-    <script src="js/app.js?v=10"></script>
+    <script src="js/config.js?v=11"></script>
+    <script src="js/app.js?v=11"></script>
 </body>
 </html>

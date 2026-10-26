@@ -467,6 +467,20 @@ body {
     border-radius: 9999px;
 }
 
+/* ---------- Botones ¿Asistes? (Sí / No) ---------- */
+.attend-opt { cursor: pointer; }
+.attend-opt:hover { border-color: #64748b; }
+#btnYes.selected {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-color: #10b981;
+    color: #042f1e;
+}
+#btnNo.selected {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    border-color: #ef4444;
+    color: #fff;
+}
+
 /* ---------- Utilidad ---------- */
 .hidden { display: none !important; }
 
